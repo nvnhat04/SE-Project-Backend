@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
-
+require('dotenv').config();
 // MongoDB Atlas connection URI
-const uri = 'mongodb+srv://nvnhat4304:04032004@cluster0.pxfnimw.mongodb.net/user';
+const uri = process.env.MONGODB_URL;
 
 async function connect() {
     try {
         await mongoose.connect(uri, {
             useNewUrlParser: true,
-            useUnifiedTopology: true // Removing the useCreateIndex option
+            useUnifiedTopology: true
         });
         console.log('Connected successfully to MongoDB Atlas');
         return 'done';
@@ -17,4 +17,6 @@ async function connect() {
     }
 }
 
-module.exports = { connect };
+// Call the connect function
+
+module.exports = {connect};
