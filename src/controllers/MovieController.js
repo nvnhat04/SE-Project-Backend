@@ -1,4 +1,4 @@
-
+const responseHandler = require("../handlers/response.handler.js");
 const  MovieDB= require("node-themoviedb");
 
 const options = {
@@ -6,6 +6,7 @@ const options = {
     defaultLang: "en" // default language for all requests
 };
 const mdb = new MovieDB(process.env.TMDB_KEY, options);
+
 class MovieController {
     async infoMovie(req, res) {
         const id = req.params.id;;
@@ -15,16 +16,14 @@ class MovieController {
                     movie_id: id,
                 },
             };
-            const movie = await mdb.movie.getDetails(args);
-            res.send(movie.data); // Assuming you want to send only the data part
+            const response = await mdb.movie.getDetails(args);
+           // res.send(response.data); // Assuming you want to send only the data part
+            return responseHandler.ok(res, response);
         } catch (error) {
             console.log(error);
             res.status(500).send("Internal Server Errorìno");
         }
     }
-    // mediaGenres: ({ mediaType }) => tmdbConfig.getUrl(
-    //     `genre/${mediaType}/list`
-    //   ),
     async getMovieList(req, res) {
         try {
             const args = {
@@ -32,28 +31,62 @@ class MovieController {
                     page: 1,
                 },
             };
-            const movieList = await mdb.movie.getPopular(args);
-            res.send(movieList.data); // Assuming you want to send only the data part
+            const response = await mdb.movie.getPopular(args);
+            return responseHandler.ok(res, response);  // Assuming you want to send only the data part
         } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error getinfo");
+            responseHandler.error(res);
         }
     }
-    async getDiscover(req, res) {
+    async getVideos(req, res) {
+        try {
+            const args = {
+                pathParameters: {
+                    movie_id: req.params.id,
+                },
+            };
+            const response = await mdb.movie.getVideos(args);
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        } catch (error) {
+            responseHandler.error(res);
+        }
+    }
+    async searchMovie(req, res) {
         try {
             const args = {
                 query: {
-                    page: 1,
+                    query: req.query.query,
                 },
             };
-            const movieList = await mdb.discover.getMovies(args);
-            if (!movieList || !movieList.data) {
-                throw new Error("Movie list data is missing or invalid.");
-            }
-            res.send(movieList.data); // Assuming you want to send only the data part
+            const response = await mdb.search.getMovie(args);
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
         } catch (error) {
-            console.log(error);
-            res.status(500).send("Internal Server Error");
+            responseHandler.error(res);
+        }
+    }
+    async getCredits(req, res) {
+        try {
+            const args = {
+                pathParameters: {
+                    movie_id: req.params.id,
+                },
+            };
+            const response = await mdb.movie.getCredits(args);
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        } catch (error) {
+            responseHandler.error(res);
+        }
+    }
+    async getSimilar (req, res) {
+        try {
+            const args = {
+                pathParameters: {
+                    movie_id: req.params.id,
+                },
+            };
+            const response = await mdb.movie.getSimilar(args);
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        } catch (error) {
+            responseHandler.error(res);
         }
     }
 }
