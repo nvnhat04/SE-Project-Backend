@@ -1,11 +1,11 @@
-const express = require("express");
-const mediaRoute = require("./media.route");
+
 const movieRoute = require("./movie.route");
-
+const accountRoute = require("./account.route");
+const personRoute = require("./person.route");
 function routes(app) {
-    app.use("/movie", movieRoute)
-   // app.use("/media", mediaRoute);
+    app.use("/movie", movieRoute);
+    app.use("/person", personRoute)
+    app.use("/", accountRoute);
+    // app.use("/u", userRoute);
 }
-
-
 module.exports = routes;

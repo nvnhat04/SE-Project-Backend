@@ -21,7 +21,7 @@ class MovieController {
             return responseHandler.ok(res, response);
         } catch (error) {
             console.log(error);
-            res.status(500).send("Internal Server Errorìno");
+            res.status(500).send("Internal Server Errorìno123");
         }
     }
     async getMovieList(req, res) {
@@ -57,7 +57,7 @@ class MovieController {
                     query: req.query.query,
                 },
             };
-            const response = await mdb.search.getMovie(args);
+            const response = await mdb.search.getMovieList(args);
             return responseHandler.ok(res, response); // Assuming you want to send only the data part
         } catch (error) {
             responseHandler.error(res);

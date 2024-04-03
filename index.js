@@ -1,26 +1,4 @@
-// const express = require('express');
-// const app = express();
 
-// const db = require('./src/config/db.connect');
-// const routes = require('./src/routes');
-// const bodyParser = require('body-parser');
-// const cors = require('cors');
-// const PORT = process.env.SERVER_PORT || 3001;
-
-// app.use(cors({
-//     origin: 'http://localhost:3000',
-//     credentials: true
-// }));
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
-// app.use("/api/v1", routes);
-
-// db.connect();
-// routes(app);
-
-// app.listen(PORT, () => {
-//     console.log(`Example app listening on port http://localhost:${PORT}`)
-// })
 
 const express = require("express");
 
