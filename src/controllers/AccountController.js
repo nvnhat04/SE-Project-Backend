@@ -8,6 +8,7 @@ class AccountController {
         if(!find) {
             const user = await User.create(req.body);
             res.send({email: user.email, _id: user._id});
+            console.log("success");
         }
         else {
             res.send('0');
@@ -21,6 +22,18 @@ class AccountController {
             res.send(check);
         } else {
             res.send('0');
+        }
+    }
+    async getDetails(req, res) {
+        try{
+            const user = await User.find({username: req.params.username});
+            if(user) {
+                res.send(user);
+            } else {
+                res.send('0');
+            }
+        }catch {
+            res.send('can not find user');
         }
     }
 }
