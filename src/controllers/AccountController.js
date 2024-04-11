@@ -56,5 +56,18 @@ class AccountController {
             res.send('can not find user');
         }
     }
+
+    async getFavorite(req, res) {
+        try{
+            const user = await User.findOne({username: req.params.username});
+            if(user && user.favoriteFilm) {
+                res.send(user.favoriteFilm);
+            } else {
+                res.send('0');
+            }
+        }catch {
+            res.send('can not find user');
+        }
+    }
 }
 module.exports = new AccountController();

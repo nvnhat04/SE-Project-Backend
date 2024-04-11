@@ -7,4 +7,5 @@ router.post('/signup', accountController.signUp);
 router.post('/login', accountController.login);
 
 router.get('/:username', accountController.getDetails);
+router.get('/:username/favorite', accountController.getFavorite);
 module.exports = router;
