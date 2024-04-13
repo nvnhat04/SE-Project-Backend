@@ -1,6 +1,6 @@
 const responseHandler = require("../handlers/response.handler.js");
 const  MovieDB= require("node-themoviedb");
-
+const axios = require('axios');
 const options = {
     secure: true, // use https
     defaultLang: "en" // default language for all requests
@@ -45,7 +45,8 @@ class MovieController {
                 },
             };
             const response = await mdb.movie.getVideos(args);
-            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+            console.log(response.data);
+            return response.data; // Assuming you want to send only the data part
         } catch (error) {
             responseHandler.error(res);
         }
@@ -57,7 +58,7 @@ class MovieController {
                     query: req.query.query,
                 },
             };
-            const response = await mdb.search.getMovieList(args);
+            const response = await mdb.search.movies(args);
             return responseHandler.ok(res, response); // Assuming you want to send only the data part
         } catch (error) {
             responseHandler.error(res);
@@ -83,8 +84,26 @@ class MovieController {
                     movie_id: req.params.id,
                 },
             };
-            const response = await mdb.movie.getSimilar(args);
+            const response = await mdb.movie.getSimilarMovies(args);
             return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        } catch (error) {
+            responseHandler.error(res);
+        }
+    }
+    async getGenres  (req, res)  {
+        try {
+            const response = await mdb.genre.getMovieList();
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        } catch (error) {
+            responseHandler.error(res);
+        }
+    }
+    async getDiscover (req, res) {
+        try {
+            const args = req.params;
+            const response = await mdb.discover.movie(args);
+            
+            return responseHandler.ok(res, response)// Assuming you want to send only the data part
         } catch (error) {
             responseHandler.error(res);
         }
