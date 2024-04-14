@@ -6,6 +6,7 @@ const movieController = require('../controllers/MovieController.js');
 router.get('/search', movieController.searchMovie);
 router.get('/popular', movieController.getMovieList);
 router.get('/videos/:id', movieController.getVideos);
+router.get('/images/:id', movieController.getImages);
 
 router.get('/credits/:id', movieController.getCredits);
 router.get('/similar/:id', movieController.getSimilar);
