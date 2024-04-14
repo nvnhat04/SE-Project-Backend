@@ -108,9 +108,8 @@ class MovieController {
             };
             let response;
             const genreList = await mdb.genre.getMovieList();
-            console.log(genreList);
-            console.log(args.query.with_genres);
-            if(args.query.with_genres.length > 0){
+    
+            if(args.query.with_genres && args.query.with_genres.length > 0){
                 response = await mdb.discover.movie(args);
             }else{
                 response = await mdb.discover.movie();
