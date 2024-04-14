@@ -40,13 +40,14 @@ class MovieController {
     async getVideos(req, res) {
         try {
             const args = {
-                pathParameters: {
-                    movie_id: req.params.id,
-                },
+            pathParameters: {
+                movie_id:req.params.id,
+            },
             };
+            
             const response = await mdb.movie.getVideos(args);
-            console.log(response.data);
-            return response.data; // Assuming you want to send only the data part
+
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
         } catch (error) {
             responseHandler.error(res);
         }
@@ -58,7 +59,7 @@ class MovieController {
                     query: req.query.query,
                 },
             };
-            const response = await mdb.search.movies(args);
+            const response = await mdb.search.multi(args);
             return responseHandler.ok(res, response); // Assuming you want to send only the data part
         } catch (error) {
             responseHandler.error(res);
@@ -98,16 +99,34 @@ class MovieController {
             responseHandler.error(res);
         }
     }
-    async getDiscover (req, res) {
+    async getDiscover(req, res) {
         try {
-            const args = req.params;
-            const response = await mdb.discover.movie(args);
-            
-            return responseHandler.ok(res, response)// Assuming you want to send only the data part
+            const args = {
+                query: {
+                    with_genres: req.query.with_genres,
+                },
+            };
+            let response;
+            const genreList = await mdb.genre.getMovieList();
+            console.log(genreList);
+            console.log(args.query.with_genres);
+            if(args.query.with_genres.length > 0){
+                response = await mdb.discover.movie(args);
+            }else{
+                response = await mdb.discover.movie();
+            }
+            //const response = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=6b651d68e87a26b95fe71080b28abea1&with_genres=16`)
+            return responseHandler.ok(res, response.data);
         } catch (error) {
-            responseHandler.error(res);
+            console.error('Error fetching movies:', error);
+            return responseHandler.error(res);
         }
     }
+  
+    
+    
 }
 
 module.exports = new MovieController;
+
+//https://api.themoviedb.org/3/discover/movie?api_key=6b651d68e87a26b95fe71080b28abea1&with_genres=16
