@@ -40,6 +40,19 @@ class PersonController {
             res.status(500).send("Internal Server Error");
         }
     }
+    async searchPerson(req, res) {
+        try {
+            const args = {
+                query: {
+                    query: req.query.query,
+                },
+            };
+            const response = await mdb.search.people(args);
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        } catch (error) {
+            responseHandler.error(res);
+        }
+    }
     
 }
 module.exports = new PersonController();
