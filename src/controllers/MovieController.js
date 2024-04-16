@@ -121,6 +121,36 @@ class MovieController {
             return responseHandler.error(res);
         }
     }
+    async getImages(req, res) {
+        try{
+            const args = {
+                pathParameters: {
+                    movie_id: req.params.id,
+                },
+            }
+            //console.log(args);
+             //const response = await mdb.movie.getImages(req.params.id);
+            const response = await axios.get(`https://api.themoviedb.org/3/movie/${req.params.id}/images?api_key=6b651d68e87a26b95fe71080b28abea1`)
+            return responseHandler.ok(res, response.data);
+        }catch {
+            return responseHandler.error(res);
+        
+        }
+    }
+    async getReviews(req, res) {
+        try{
+            const args = {
+                pathParameters: {
+                    movie_id: req.params.id,
+                },
+            }
+            const response = await mdb.movie.getReviews(args);
+            return responseHandler.ok(res, response);
+        }catch {
+            return responseHandler.error(res);
+        
+        }
+    }
   
     
     
