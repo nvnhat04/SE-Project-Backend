@@ -1,12 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const Schema = mongoose.Schema;
-
-const review = new Schema({
-    user_email: { type: String},
-    track_id: {type: String},
-    text: {type: String, default: ''},
-    create: { type: Date, default: Date.now },
+const reviewSchema = new Schema({
+    user_email: { type: String, required: true },
+    movie_id: { type: String, required: true },
+    text: { type: String, default: '' },
+    created_at: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Review', review);
+module.exports = mongoose.model('Review', reviewSchema);
