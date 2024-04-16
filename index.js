@@ -3,8 +3,8 @@
 const express = require("express");
 
 const cors = require("cors");
-// const http = require("http");
-// const mongoose = require("mongoose");
+
+
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
@@ -14,6 +14,7 @@ app.use(cors({
     origin: 'http://localhost:3000',
     credentials: true
 }));
+
 // app.use(express.json());
 // app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
