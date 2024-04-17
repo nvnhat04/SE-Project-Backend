@@ -7,18 +7,31 @@ const options = {
 };
 const mdb = new MovieDB(process.env.TMDB_KEY, options);
 class ReviewController {
-    async getReviews(req, res) {
+    async getDetails(req, res) {
         try {
-            const args = {
-                query: {
-                    page: 1,
+           const args = {
+                pathParameters: {
+                    review_id: req.params.id,
                 },
             };
-            const movieList = await mdb.review.getReviews(args);
-            res.send(movieList.data); // Assuming you want to send only the data part
+            const response = await mdb.review.getDetails(args);
+            if (response.data) {
+                return responseHandler.ok(res, response); // Assuming you want to send only the data part
+            } else {
+                responseHandler.error(res);
+           }
         } catch (error) {
             console.log(error);
             res.status(500).send("Internal Server Error");
+        }
+    }
+    async createReview(req, res) {
+        const newReview = req.body;
+        try {
+            const review = await Review.create(newReview);
+            res.send(review);
+        } catch (error) {
+            responseHandler.error(res);
         }
     }
 }

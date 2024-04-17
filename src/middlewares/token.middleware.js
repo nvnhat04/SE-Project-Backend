@@ -1,38 +1,30 @@
-import jsonwebtoken from "jsonwebtoken";
-import responseHandler from "../handlers/response.handler.js";
-import userModel from "../models/user.model.js";
+// tokenMiddleware.js
+const jwt = require('jsonwebtoken');
+const SECRET_KEY = process.env.TOKEN_SECRET_KEY;
 
-const tokenDecode = (req) => {
-    try {
-        const bearerHeader = req.headers["authorization"];
-
-        if (bearerHeader) {
-        const token = bearerHeader.split(" ")[1];
-
-        return jsonwebtoken.verify(
-            token,
-            process.env.TOKEN_SECRET
-        );
+const tokenMiddleware = {
+    authenticateToken: (req, res, next) => {
+        const token = req.headers.token;
+        if (!token) {
+            console.log("No token provided.")
+            return res.status(401).send({ auth: false, message: 'No token provided.' });
         }
-
-        return false;
-    } catch {
-        return false;
+        const accessToken = token.split(" ")[1];
+        //console.log(accessToken);
+        jwt.verify(accessToken, SECRET_KEY, (err, user) => {
+            if (err) {
+                if (err.name === 'TokenExpiredError') {
+                    return res.status(401).send({ auth: false, message: 'Token expired.' });
+                }
+                //console.log("failed to authenticate token.")
+                return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+            }
+            // if everything good, save to request for use in other routes
+            console.log(user +" is authenticated."); 
+            req.user = user;
+            next();
+        });
     }
 };
 
-const auth = async (req, res, next) => {
-    const tokenDecoded = tokenDecode(req);
-
-    if (!tokenDecoded) return responseHandler.unauthorize(res);
-
-    const user = await userModel.findById(tokenDecoded.data);
-
-    if (!user) return responseHandler.unauthorize(res);
-
-    req.user = user;
-
-    next();
-};
-
-export default { auth, tokenDecode };
+module.exports = tokenMiddleware;

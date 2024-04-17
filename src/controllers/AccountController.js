@@ -1,5 +1,7 @@
 const responseHandler = require("../handlers/response.handler.js");
 const User = require('../models/user.model.js');
+const Review = require('../models/review.model.js');
+const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 
 class AccountController {
@@ -18,8 +20,7 @@ class AccountController {
                 res.send('0');
             }
         } catch (error) {
-            console.error(error);
-            res.status(500).send('Internal Server Error');
+            responseHandler.error(res);
         }
     }
     
@@ -29,9 +30,12 @@ class AccountController {
             const user = await User.findOne({ email: authUser.email });
             if (user) {
                 // Compare hashed password with the provided password
+                const token = jwt.sign({ _id: user._id},process.env.TOKEN_SECRET_KEY, { expiresIn: '24h' }); // token expires in 1 hour
+                // console.log(user);
                 const match = await bcrypt.compare(authUser.password, user.password);
                 if (match) {
-                    res.send({ success: true, message: 'Login successful', email: user.email, _id: user._id });
+                   // res.send({ success: true, message: 'Login successful', user, token});
+                    res.status(200).send({ success: true, token: token, user});
                 } else {
                     res.send({ success: false, message: 'Invalid credentials' });
                 }
@@ -46,7 +50,7 @@ class AccountController {
 
     async getDetails(req, res) {
         try{
-            const user = await User.find({username: req.params.username});
+            const user = await User.findOne({username: req.params.username});
             if(user) {
                 res.send(user);
             } else {
@@ -69,5 +73,6 @@ class AccountController {
             res.send('can not find user');
         }
     }
+    
 }
 module.exports = new AccountController();
