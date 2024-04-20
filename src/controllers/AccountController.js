@@ -73,6 +73,21 @@ class AccountController {
             res.send('can not find user');
         }
     }
+    async addFavorite(req, res){
+        const { username, movieId } = req.params;
+        try{
+            const user = await User.findOne({username: username});
+            if(user) {
+                user.favoriteFilm.push(movieId);
+                user.save();
+                res.send({success: "true", message: "add favorite film success",favorite: user.favoriteFilm});
+            } else {
+                res.send('0');
+            }
+        }catch{
+            res.send('can not find user');
+        }
+    }
     
 }
 module.exports = new AccountController();
