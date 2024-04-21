@@ -77,7 +77,7 @@ class AccountController {
         const { username, movieId } = req.params;
         try{
             const user = await User.findOne({username: username});
-            if(user) {
+            if(user && user.favoriteFilm.findIndex(film => film === movieId) === -1){
                 user.favoriteFilm.push(movieId);
                 user.save();
                 res.send({success: "true", message: "add favorite film success",favorite: user.favoriteFilm});
@@ -87,6 +87,22 @@ class AccountController {
         }catch{
             res.send('can not find user');
         }
+    }
+    async removeFavorite(req, res){
+        const { username, movieId } = req.params;
+        try{
+            const user = await User.findOne({username: username});
+            if(user && user.favoriteFilm.findIndex(film => film === movieId) !== -1){
+                user.favoriteFilm = user.favoriteFilm.filter(film => film !== movieId);
+                user.save();
+                res.send({success: "true", message: "remove favorite film success",favorite: user.favoriteFilm});
+            }
+            else {
+                res.send('0');
+            }
+        } catch {
+            res.send('can not find user');
+        } 
     }
     
 }
