@@ -1,6 +1,6 @@
 const responseHandler = require("../handlers/response.handler.js");
 const  MovieDB= require("node-themoviedb");
-
+const Review = require('../models/review.model.js');
 const options = {
     secure: true, // use https
     defaultLang: "en" // default language for all requests
@@ -27,9 +27,18 @@ class ReviewController {
     }
     async createReview(req, res) {
         const newReview = req.body;
+       // const {movieId, username} =req.params;
         try {
             const review = await Review.create(newReview);
-            res.send(review);
+            res.send({success: "true",message: "create successfully",review: review});
+        } catch (error) {
+            responseHandler.error(res);
+        }
+    }
+    async getReviews(req, res) {
+        try {
+            const reviews = await Review.find({movieId: req.params.movieId});
+            res.send(reviews);
         } catch (error) {
             responseHandler.error(res);
         }

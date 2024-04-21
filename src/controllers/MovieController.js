@@ -118,20 +118,35 @@ class MovieController {
     }
     async getDiscover(req, res) {
         try {
-            const args = {
-                query: {
-                    with_genres: req.query.with_genres,
-                },
+            let args = {
+                query: {}
             };
-            let response;
-            const genreList = await mdb.genre.getMovieList();
-    
-            if(args.query.with_genres && args.query.with_genres.length > 0){
-                response = await mdb.discover.movie(args);
-            }else{
-                response = await mdb.discover.movie();
+            args.query.include_adult = false;
+            if (req.query.with_genres) {
+                args.query.with_genres = req.query.with_genres;
             }
-            //const response = await axios.get(`https://api.themoviedb.org/3/discover/movie?api_key=6b651d68e87a26b95fe71080b28abea1&with_genres=16`)
+
+            if (req.query.page) {
+                args.query.page = req.query.page;
+            }
+
+            if (req.query.sort_by) {
+                args.query.sort_by = req.query.sort_by;
+            }
+            if (req.query['primary_release_date.gte']) {
+                args.query['primary_release_date.gte'] = req.query['primary_release_date.gte'];
+            }
+            if(req.query.primary_release_year){
+                args.query['primary_release_year'] = req.query.primary_release_year;
+            }
+            if (req.query.language) {
+                args.query.language = req.query.language;
+            }
+            let response;
+            //const genreList = await mdb.genre.getMovieList();
+
+            response = await mdb.discover.movie(args);
+            
             return responseHandler.ok(res, response.data);
         } catch (error) {
             console.error('Error fetching movies:', error);
