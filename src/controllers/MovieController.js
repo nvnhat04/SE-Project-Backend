@@ -139,8 +139,8 @@ class MovieController {
             if(req.query.primary_release_year){
                 args.query['primary_release_year'] = req.query.primary_release_year;
             }
-            if (req.query.language) {
-                args.query.language = req.query.language;
+            if (req.query.with_original_language) {
+                args.query.with_original_language = req.query.with_original_language;
             }
             let response;
             //const genreList = await mdb.genre.getMovieList();
