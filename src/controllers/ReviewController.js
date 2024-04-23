@@ -7,19 +7,12 @@ const options = {
 };
 const mdb = new MovieDB(process.env.TMDB_KEY, options);
 class ReviewController {
-    async getDetails(req, res) {
+    async getDetailByID(req, res) {
+        const agrs = req.params.id;
         try {
-           const args = {
-                pathParameters: {
-                    review_id: req.params.id,
-                },
-            };
-            const response = await mdb.review.getDetails(args);
-            if (response.data) {
-                return responseHandler.ok(res, response); // Assuming you want to send only the data part
-            } else {
-                responseHandler.error(res);
-           }
+            const reviewData = await Review.findById(agrs);
+            res.send({success: "true", message: "get successfully", review: reviewData});
+
         } catch (error) {
             console.log(error);
             res.status(500).send("Internal Server Error");
@@ -43,5 +36,27 @@ class ReviewController {
             responseHandler.error(res);
         }
     }
+    async deleteReview(req, res) {
+        try {
+            const review = await Review.findById(req.params.id);
+
+            if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+            }
+
+            // Check if the user is the one who created the review
+            if (req.user.username !== review.username) {
+            return res.status(403).json({ message: 'User not authorized' });
+            }
+
+            await Review.deleteOne({ _id: req.params.id });
+
+            res.json({ message: 'Review removed' });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send('Server Error');
+        }
+    }
+
 }
 module.exports = new  ReviewController;
