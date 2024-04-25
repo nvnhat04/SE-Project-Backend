@@ -52,6 +52,23 @@ class MovieController {
             responseHandler.error(res);
         }
     }
+    async getImages(req, res) {
+        try {
+            const args = {
+                pathParameters: {
+                    movie_id: req.params.id,
+                },
+                query: {
+                    include_image_language: "en,null",
+                },
+            };
+            const response = await mdb.movie.getImages(args);
+            return responseHandler.ok(res, response); // Assuming you want to send only the data part
+        }
+        catch (error) {
+            responseHandler.error(res);
+        }
+    }
     async searchMovie(req, res) {
         try {
             const args = {
