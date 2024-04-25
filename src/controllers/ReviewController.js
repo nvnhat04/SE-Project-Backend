@@ -45,13 +45,13 @@ class ReviewController {
             }
 
             // Check if the user is the one who created the review
+            console.log("req",req.user);
             if (req.user.username !== review.username) {
-            return res.status(403).json({ message: 'User not authorized' });
+            return res.status(403).json({ success: "false", message: 'User not authorized' });
             }
-
             await Review.deleteOne({ _id: req.params.id });
 
-            res.json({ message: 'Review removed' });
+            res.json({ success: 'true', message: 'Review removed' });
         } catch (err) {
             console.error(err.message);
             res.status(500).send('Server Error');
