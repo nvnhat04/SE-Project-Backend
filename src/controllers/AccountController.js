@@ -30,7 +30,7 @@ class AccountController {
             const user = await User.findOne({ email: authUser.email });
             if (user) {
                 // Compare hashed password with the provided password
-                const token = jwt.sign({ _id: user._id},process.env.TOKEN_SECRET_KEY, { expiresIn: '24h' }); // token expires in 1 hour
+                const token = jwt.sign({ _id: user._id, username: user.username},process.env.TOKEN_SECRET_KEY, { expiresIn: '24h' }); // token expires in 1 hour
                 // console.log(user);
                 const match = await bcrypt.compare(authUser.password, user.password);
                 if (match) {
@@ -103,6 +103,72 @@ class AccountController {
         } catch {
             res.send('can not find user');
         } 
+    }
+    async updateProfile(req, res){
+        const { username } = req.params;
+        const {name, gender} = req.body;
+        try {
+            const user = await User.findOne({username: username});
+            if(user){
+                user.name = name;
+                user.gender = gender;
+                user.save();
+                res.send({success: "true", message: "update profile success"});
+            } else {
+                res.send('0');
+            }
+            
+        } catch{
+            res.send('0');
+        }
+    }
+    async updatePassword(req, res){
+        const { username } = req.params;
+        const { password } = req.body;
+        try {
+            const user = await User.findOne({username: username});
+            if(user){
+                const hashedPassword = await bcrypt.hash(password, 10);
+                user.password = hashedPassword;
+                user.save();
+                res.send({success: "true", message: "update password success"});
+            } else {
+                res.send('0');
+            }
+        } catch {
+            res.send('error to update');
+        }
+    }
+    async deleteAccount(req, res){
+        const { username } = req.params;
+        try {
+            const user = await User.findOne({usename : username});
+            if(user){
+                user.remove();
+                res.send({success: "true", message: "remove account success"});
+            } else {
+                res.send('0');
+            }
+        }catch {
+            res.send('0');
+        }
+    }
+    async resetPassword(req, res){
+        const { username, password } = req.body;
+        
+        try {
+            const user = await User.findOne({username: username});
+            if(user){
+                const hashedPassword = await bcrypt.hash(password, 10);
+                user.password = hashedPassword;
+                user.save();
+                res.send({success: "true", message: "set up password success"});
+            } else {
+                res.send('0');
+            }
+        } catch {
+            res.send('error');
+        }
     }
     
 }
