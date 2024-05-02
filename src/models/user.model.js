@@ -1,3 +1,4 @@
+const { verify } = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -6,19 +7,13 @@ const user = new Schema({
     username: { type: String, default: ''},
     name: { type: String, default: 'Guest' },
     gender: {type: String, default: null},
-    email: { type: String, default: '' },
+    email: { type: String, default: '', unique: true},
     password: { type: String, default: '' },
     favoriteFilm: {type: Array, default: [] },
-    avatar: {type: String, default: 'D:\Github\Movie-Web\server\public\no_image.jpg'},
+    avatar: {type: String, default: 'https://img.freepik.com/free-photo/3d-illustration-cute-cartoon-boy-with-backpack-his-back_1142-40542.jpg?t=st=1714662956~exp=1714666556~hmac=352287f31e54b4b693b7eb0225febdf3dacd79680533321504120e4a1f5ddcbd&w=740'},
     create: { type: Date, default: Date.now },
     admin: { type: Boolean, default: false },
+    verified: { type: Boolean, default: false },
 });
 
-user.pre('save', function(next) {
-    if (this.isModified('email')) {
-        const username = this.email.substring(0, this.email.indexOf('@'));
-        this.username = username;
-    }
-    next();
-});
 module.exports = mongoose.model('User', user);

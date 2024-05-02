@@ -15,4 +15,8 @@ router.post('/:username/update-profile',tokenMiddleware.authenticateToken,accoun
 router.post('/:username/update-password',tokenMiddleware.authenticateToken,accountController.updatePassword);
 router.post('/reset-password', accountController.resetPassword);
 router.delete('/:username/delete', tokenMiddleware.authenticateToken, accountController.deleteAccount);
+router.post('/send-otp', accountController.sendOTPVerification);
+router.post('/verify-otp', accountController.verifyOTP);
+ 
+
 module.exports = router;

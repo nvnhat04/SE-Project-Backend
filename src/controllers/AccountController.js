@@ -3,7 +3,8 @@ const User = require('../models/user.model.js');
 const Review = require('../models/review.model.js');
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
-
+const { EmailTransporter } = require('../config/email.config.js');
+const UserVerification = require('../models/user.verification.js');
 class AccountController {
     async signUp(req, res) {
         const newUser = req.body;
@@ -168,6 +169,75 @@ class AccountController {
             }
         } catch {
             res.send('error');
+        }
+    }
+    async verifyOTP(req, res){
+        const {email, otp} = req.body;
+        try{
+            // Reset verified field to false at the start of verification
+            await User.updateOne({email: email}, {verified: false});
+
+            const userVerification = await UserVerification.findOne({email: email});
+            if(userVerification){
+                const expireAt = userVerification.expireAt;
+                if(Date.now() > expireAt){
+                    await UserVerification.deleteMany({email: email});
+                    throw new Error("OTP expired");
+                }
+                const match = await bcrypt.compare(otp, userVerification.otp);
+                if(match){
+                    await User.updateOne({email: email}, {verified: true});
+                    await UserVerification.deleteMany({email: email}),
+                    res.send({email: email ,success: "true", message: "verify otp success"});
+                } else {
+                    res.send({success: "false", message: "OTP not match"});
+                }
+            } else {
+                res.send({success: "false", message: "OTP not found"});
+            }
+        }catch(error){
+            console.log(error);
+            res.send({error: error, success: "false", message: "error to verify otp"});
+
+        }
+    }
+    async sendOTPVerification(req, res){
+        const { email} = req.body;
+        try {
+            if(!email){
+                res.send({success: "false", message: "Email is required"});
+                throw new Error("Email is required");
+            }
+            const opt = `${Math.floor(1000 + Math.random() * 9000)}`;
+            const mailOptions = {
+                from: process.env.EMAIL,
+                to: email,
+                
+                subject: 'OTP Verification',
+                html: `<h1>Your OTP is ${opt}</h1>`
+            };
+            const hashOTP = await bcrypt.hash(opt, 10);
+            const newOTPVerification = new UserVerification( {
+                email: email,
+                otp: hashOTP,
+                createdAt: Date.now(),
+                expireAt: Date.now() + 60000,
+            });
+            await newOTPVerification.save();
+            const transporter = await EmailTransporter();
+            transporter.sendMail(mailOptions);
+            res.send({
+                success: "true", 
+                message: "send otp success",
+                data: {
+                    verify: newOTPVerification
+                }});
+
+        }
+        catch(error)
+        {
+            console.log(error);
+            res.send({error: error, success: "false", message: "send otp fail"});
         }
     }
     
