@@ -81,7 +81,7 @@ class AccountController {
             if(user && user.favoriteFilm.findIndex(film => film === movieId) === -1){
                 user.favoriteFilm.push(movieId);
                 user.save();
-                res.send({success: "true", message: "add favorite film success",favorite: user.favoriteFilm});
+                res.send({success: true, message: "add favorite film success",favorite: user.favoriteFilm});
             } else {
                 res.send('0');
             }
@@ -96,7 +96,7 @@ class AccountController {
             if(user && user.favoriteFilm.findIndex(film => film === movieId) !== -1){
                 user.favoriteFilm = user.favoriteFilm.filter(film => film !== movieId);
                 user.save();
-                res.send({success: "true", message: "remove favorite film success",favorite: user.favoriteFilm});
+                res.send({success: true, message: "remove favorite film success",favorite: user.favoriteFilm});
             }
             else {
                 res.send('0');
@@ -114,7 +114,7 @@ class AccountController {
                 user.name = name;
                 user.gender = gender;
                 user.save();
-                res.send({success: "true", message: "update profile success"});
+                res.send({success: true, message: "update profile success"});
             } else {
                 res.send('0');
             }
@@ -125,19 +125,25 @@ class AccountController {
     }
     async updatePassword(req, res){
         const { username } = req.params;
-        const { password } = req.body;
+        const {oldPassword, newPassword } = req.body;
         try {
             const user = await User.findOne({username: username});
             if(user){
-                const hashedPassword = await bcrypt.hash(password, 10);
-                user.password = hashedPassword;
-                user.save();
-                res.send({success: "true", message: "update password success"});
+                
+                const match = await bcrypt.compare(oldPassword, user.password);
+                if(match){
+                    const hashedPassword = await bcrypt.hash(newPassword, 10);
+                    user.password = hashedPassword;
+                    user.save();
+                    res.send({success: true, message: "update password success"});
+                }else{
+                    res.send({success: false, message: "password not match"});
+                }
             } else {
-                res.send('0');
+                res.send({success: false, message: "user not found"});
             }
         } catch {
-            res.send('error to update');
+            res.send({success: false, message: "error to update password"});
         }
     }
     async deleteAccount(req, res){
@@ -146,7 +152,7 @@ class AccountController {
             const user = await User.findOne({usename : username});
             if(user){
                 user.remove();
-                res.send({success: "true", message: "remove account success"});
+                res.send({success: true, message: "remove account success"});
             } else {
                 res.send('0');
             }
@@ -154,21 +160,21 @@ class AccountController {
             res.send('0');
         }
     }
+    
     async resetPassword(req, res){
-        const { username, password } = req.body;
-        
+        const {email, password } = req.body;
         try {
-            const user = await User.findOne({username: username});
+            const user = await User.findOne({email: email});
             if(user){
                 const hashedPassword = await bcrypt.hash(password, 10);
                 user.password = hashedPassword;
                 user.save();
-                res.send({success: "true", message: "set up password success"});
+                res.send({success: true, message: "set up password success"});
             } else {
-                res.send('0');
+                res.send({success: false, message: "user not found"});
             }
         } catch {
-            res.send('error');
+            res.send({success: false, message: "error to set up password"});
         }
     }
     async verifyOTP(req, res){
@@ -186,28 +192,38 @@ class AccountController {
                 }
                 const match = await bcrypt.compare(otp, userVerification.otp);
                 if(match){
-                    await User.updateOne({email: email}, {verified: true});
-                    await UserVerification.deleteMany({email: email}),
-                    res.send({email: email ,success: "true", message: "verify otp success"});
+                    const newPassword = `${Math.floor(100000 + Math.random() * 900000)}`;
+                    const hashedPassword = await bcrypt.hash(newPassword, 10);
+                    await User.updateOne({email: email},{password: hashedPassword}, {verified: true});
+                    await UserVerification.deleteMany({email: email});
+                    
+                    const mailOptions = {
+                        from: process.env.EMAIL,
+                        to: email,
+                        subject: 'New Password',
+                        html: `<h1>Your new password is ${newPassword}</h1>`
+                    };
+                    const transporter = await EmailTransporter();
+                    transporter.sendMail(mailOptions);
+                    res.send({email: email,password: newPassword,success: true, message: "verify otp success"});
                 } else {
-                    res.send({success: "false", message: "OTP not match"});
+                    res.send({success: false, message: "OTP not match"});
                 }
             } else {
-                res.send({success: "false", message: "OTP not found"});
+                res.send({success: false, message: "OTP not found"});
             }
         }catch(error){
             console.log(error);
-            res.send({error: error, success: "false", message: "error to verify otp"});
+            res.send({error: error, success: false, message: "error to verify otp"});
 
         }
     }
     async sendOTPVerification(req, res){
         const { email} = req.body;
         try {
-            if(!email){
-                res.send({success: "false", message: "Email is required"});
-                throw new Error("Email is required");
-            }
+            if(email){
+                
+            
             const opt = `${Math.floor(1000 + Math.random() * 9000)}`;
             const mailOptions = {
                 from: process.env.EMAIL,
@@ -227,17 +243,21 @@ class AccountController {
             const transporter = await EmailTransporter();
             transporter.sendMail(mailOptions);
             res.send({
-                success: "true", 
+                success: true, 
                 message: "send otp success",
                 data: {
                     verify: newOTPVerification
                 }});
+            } else {
+                res.send({success: false, message: "Email is required"});
+                // throw new Error("Email is required");
+            }
 
         }
         catch(error)
         {
             console.log(error);
-            res.send({error: error, success: "false", message: "send otp fail"});
+            res.send({error: error, success: false, message: "send otp fail"});
         }
     }
     
