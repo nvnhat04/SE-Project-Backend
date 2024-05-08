@@ -61,6 +61,19 @@ class AccountController {
             res.send('can not find user');
         }
     }
+    async getAllUsers(req, res) {
+        try {
+            const data = await User.find();
+            if(data){
+                res.send({data: data, success: true, message: "get all users success"});
+            }else {
+                res.send({success: false, message: "can not get all users"});
+            }
+        }catch (error){
+            console.log(error);
+            res.send({success: false, message: "error to get all users"});
+        }
+    }
 
     async getFavorite(req, res) {
         try{
