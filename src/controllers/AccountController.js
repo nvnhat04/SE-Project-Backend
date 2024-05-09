@@ -41,7 +41,7 @@ class AccountController {
                     res.send({ success: false, message: 'Invalid credentials' });
                 }
             } else {
-                res.send({ success: false, message: 'User not found' });
+                res.send({ success: false, message: 'Email not found' });
             }
         } catch (error) {
             console.error(error);
@@ -87,21 +87,44 @@ class AccountController {
             res.send('can not find user');
         }
     }
-    async addFavorite(req, res){
+    async addFavorite(req, res) {
         const { username, movieId } = req.params;
-        try{
-            const user = await User.findOne({username: username});
-            if(user && user.favoriteFilm.findIndex(film => film === movieId) === -1){
-                user.favoriteFilm.push(movieId);
-                user.save();
-                res.send({success: true, message: "add favorite film success",favorite: user.favoriteFilm});
-            } else {
-                res.send('0');
+    
+        function isValidMovieId(movieId) {
+            const movieIdNumber = Number(movieId);
+            return Number.isInteger(movieIdNumber) && movieIdNumber > 0;
+        }
+    
+        try {
+            if (!movieId) {
+                res.status(400).send({ success: false, message: "Movie ID is required" });
+                return;
             }
-        }catch{
-            res.send('can not find user');
+            if (!isValidMovieId(movieId)) {
+                res.status(400).send({ success: false, message: "Invalid Movie ID" });
+                return;
+            }
+    
+            const user = await User.findOne({ username: username });
+            if (!user) {
+                res.status(404).send({ success: false, message: "User not found" });
+                return;
+            }
+    
+            if (user.favoriteFilm.includes(movieId)) {
+                res.status(409).send({ success: false, message: "Movie already in favorites" });
+                return;
+            }
+    
+            user.favoriteFilm.push(movieId);
+            user.save();
+            res.status(200).send({ success: true, message: "Add favorite film success", favorite: user.favoriteFilm });
+        } catch (error) {
+            console.error("Error occurred:", error);
+            res.status(500).send({ success: false, message: "Error occurred" });
         }
     }
+    
     async removeFavorite(req, res){
         const { username, movieId } = req.params;
         try{
