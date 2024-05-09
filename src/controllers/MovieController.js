@@ -21,7 +21,7 @@ class MovieController {
             return responseHandler.ok(res, response);
         } catch (error) {
             console.log(error);
-            res.status(500).send("Internal Server Errorìno123");
+            res.status(500).send("Internal Server Error");
         }
     }
     async getMovieList(req, res) {

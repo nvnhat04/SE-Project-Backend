@@ -18,7 +18,7 @@ class AccountController {
                 res.send({email: user.email, _id: user._id});
                 console.log("success");
             } else {
-                res.send('0');
+                res.send({"message": 'Email already exists'});
             }
         } catch (error) {
             responseHandler.error(res);
