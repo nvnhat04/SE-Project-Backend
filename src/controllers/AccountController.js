@@ -135,10 +135,10 @@ class AccountController {
                 res.send({success: true, message: "remove favorite film success",favorite: user.favoriteFilm});
             }
             else {
-                res.send('0');
+                res.send({message: 'Movie not found in favorite list'});
             }
         } catch {
-            res.send('can not find user');
+            res.send({message: 'can not find user'});
         } 
     }
     async updateProfile(req, res){
