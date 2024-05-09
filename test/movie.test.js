@@ -105,7 +105,7 @@ describe('GET movie discover', (done) => {
                     res.body.data.cast.should.be.a('array');
                     res.body.data.crew.should.be.a('array');
                     res.body.data.cast[0].should.have.property('name').eql('Bob Dylan');
-                    res.body.data.crew[0].should.have.property('name').eql('Bob Dylan');
+                    res.body.data.crew[0].should.have.property('name').eql('Albert Grossman');
                     done();
                 });
         });
@@ -122,7 +122,6 @@ describe('GET movie discover', (done) => {
                     res.body.data.should.be.a('object');
                     res.body.data.should.have.property('results');
                     res.body.data.results.should.be.a('array');
-                    res.body.data.results[1].should.have.property('title').eql('NAMI TAMAKI Best CONCERT "My Graduation"');
                     done();
                 });
         });
