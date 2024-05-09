@@ -188,7 +188,7 @@ describe('Account', () => {
                 const loginResponse = await chai.request(server)
                     .post('/account/login')
                     .send(credentials);
-                
+                console.log("Login response:", loginResponse.body);
                 token = loginResponse.body.token; // Lưu trữ token nhận được
             } catch (error) {
                 console.error("Error occurred while logging in:", error);
@@ -309,6 +309,7 @@ describe('Account', () => {
                 });
             
         });
-    });              
+    });
+    
 });
 
