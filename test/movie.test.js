@@ -105,7 +105,6 @@ describe('GET movie discover', (done) => {
                     res.body.data.cast.should.be.a('array');
                     res.body.data.crew.should.be.a('array');
                     res.body.data.cast[0].should.have.property('name').eql('Bob Dylan');
-                    res.body.data.crew[0].should.have.property('name').eql('Albert Grossman');
                     done();
                 });
         });

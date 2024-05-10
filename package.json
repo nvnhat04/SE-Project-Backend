@@ -7,7 +7,8 @@
     "start": "nodemon index.js",
     "clean": "rimraf mochawesome-report/",
     "test": "npm run clean && mocha --timeout 100000 --reporter mochawesome",
-    "account-test": "mocha ./test/user.test.js"
+    "account-test": "mocha ./test/user.test.js --timeout 100000",
+    "review-test": "mocha ./test/apireview.test.js --timeout 100000"
 
   },
   "repository": {
