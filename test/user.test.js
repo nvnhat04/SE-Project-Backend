@@ -188,7 +188,7 @@ describe('Account', () => {
                 const loginResponse = await chai.request(server)
                     .post('/account/login')
                     .send(credentials);
-                
+                console.log("Login response:", loginResponse.body);
                 token = loginResponse.body.token; // Lưu trữ token nhận được
             } catch (error) {
                 console.error("Error occurred while logging in:", error);
@@ -267,6 +267,49 @@ describe('Account', () => {
                     });
                 });
         });
-    });              
+        describe('POST remove favorite', () => {
+            it('it should not POST remove favorite without token', function(done) {
+                chai.request(server)
+                    .post('/account/test/removefavorite/135')
+                    .end((err, res) => {
+                        res.should.have.status(401);
+                        done();
+                    });
+                });
+            it('it should POST remove favorite', (done) => {
+                chai.request(server)
+                    .post('/account/test/removefavorite/135')
+                    .set('token', 'Bearer ' + token)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.have.property('message').eql('remove favorite film success');
+                        res.body.should.have.property('favorite').length(1);
+                        res.body.favorite[0].should.eql('1357');
+                        done();
+                    });
+                });
+            it('it should not POST remove of a movie that is not in the favorite list', function(done) {
+                chai.request(server)
+                    .post('/account/test/removefavorite/13568')
+                    .set('token', 'Bearer ' + token)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        res.body.should.have.property('message').eql('Movie not found in favorite list');
+                        done();
+                    });
+                });
+            it('it should not POST remove favorite with invalid user', function(done) {
+                chai.request(server)
+                    .post('/account/invalid/removefavorite/135')
+                    .set('token', 'Bearer ' + token)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        done();
+                    });
+                });
+            
+        });
+    });
+    
 });
 
