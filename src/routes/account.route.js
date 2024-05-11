@@ -15,6 +15,7 @@ router.put('/:username/update-profile',tokenMiddleware.authenticateToken,account
 router.put('/:username/update-password',tokenMiddleware.authenticateToken,accountController.updatePassword);
 router.put('/reset-password', accountController.resetPassword);
 router.delete('/:username/delete', tokenMiddleware.authenticateToken, accountController.deleteAccount);
+router.delete('/admin-delete',accountController.adminDeleteAccount);
 router.post('/send-otp', accountController.sendOTPVerification);
 router.post('/verify-otp', accountController.verifyOTP);
  

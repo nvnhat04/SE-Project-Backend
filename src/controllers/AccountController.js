@@ -5,20 +5,22 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const { EmailTransporter } = require('../config/email.config.js');
 const UserVerification = require('../models/user.verification.js');
+ 
 class AccountController {
     async signUp(req, res) {
         const newUser = req.body;
         try {
-            const find = await User.findOne({email: newUser.email});
-            if (!find) {
+            const find = await User.findOne({email: newUser.email})
+            const findUsername = await User.findOne({username: newUser.username});
+            if (!find && !findUsername) {
                 // Hash the password before storing it
                 const hashedPassword = await bcrypt.hash(newUser.password, 10); // 10 is the saltRounds
                 newUser.password = hashedPassword;
                 const user = await User.create(newUser);
-                res.send({email: user.email, _id: user._id});
+                res.send({success: true, email: user.email, _id: user._id});
                 console.log("success");
             } else {
-                res.send({"message": 'Email already exists'});
+                res.send({message: 'Email already exists'});
             }
         } catch (error) {
             responseHandler.error(res);
@@ -45,7 +47,7 @@ class AccountController {
             }
         } catch (error) {
             console.error(error);
-            res.status(500).send('Internal Server Error');
+            res.status(200).send('Internal Server Error');
         }
     }
 
@@ -185,18 +187,32 @@ class AccountController {
     async deleteAccount(req, res){
         const { username } = req.params;
         try {
-            const user = await User.findOne({usename : username});
+            const user = await User.findOne({username : username});
             if(user){
-                user.remove();
+                await User.deleteOne({username: username});
                 res.send({success: true, message: "remove account success"});
             } else {
-                res.send('0');
+                res.send({success: false, message: "user not found"});
             }
         }catch {
-            res.send('0');
+            res.send({success: false, message: "error to remove account"});
         }
     }
-    
+    async adminDeleteAccount(req, res){
+        const { username, email } = req.body;
+        try {
+            const user = await User.findOne({user: username});
+            if(user){
+                await User.deleteOne({_id: user._id});
+                res.send({success: true, message: "remove account success"});
+            } else {
+                res.send({success: false, message: "user not found"});
+            }
+        }catch(error) {
+            console.log(error);
+            res.send({success: false, message: "error to remove account"});
+        }
+    }
     async resetPassword(req, res){
         const {email, password } = req.body;
         try {
@@ -257,37 +273,44 @@ class AccountController {
     async sendOTPVerification(req, res){
         const { email} = req.body;
         try {
-            if(email){
-                
-            
-            const opt = `${Math.floor(1000 + Math.random() * 9000)}`;
-            const mailOptions = {
-                from: process.env.EMAIL,
-                to: email,
-                
-                subject: 'OTP Verification',
-                html: `<h1>Your OTP is ${opt}</h1>`
-            };
-            const hashOTP = await bcrypt.hash(opt, 10);
-            const newOTPVerification = new UserVerification( {
-                email: email,
-                otp: hashOTP,
-                createdAt: Date.now(),
-                expireAt: Date.now() + 60000,
-            });
-            await newOTPVerification.save();
-            const transporter = await EmailTransporter();
-            transporter.sendMail(mailOptions);
-            res.send({
-                success: true, 
-                message: "send otp success",
-                data: {
-                    verify: newOTPVerification
-                }});
-            } else {
-                res.send({success: false, message: "Email is required"});
-                // throw new Error("Email is required");
-            }
+            const check = await User.findOne({email: email});
+            if(check){
+                if(email){
+                const opt = `${Math.floor(1000 + Math.random() * 9000)}`;
+                const mailOptions = {
+                    from: process.env.EMAIL,
+                    to: email,
+                    
+                    subject: 'OTP Verification',
+                    html: `<h1>Your OTP is ${opt}</h1>`
+                };
+                const hashOTP = await bcrypt.hash(opt, 10);
+                const newOTPVerification = new UserVerification( {
+                    email: email,
+                    otp: hashOTP,
+                    createdAt: Date.now(),
+                    expireAt: Date.now() + 60000,
+                });
+                await newOTPVerification.save();
+                try{
+                    const transporter = await EmailTransporter();
+                    transporter.sendMail(mailOptions);
+                    res.send({
+                        success: true, 
+                        message: "send otp success",
+                        data: {
+                            verify: newOTPVerification
+                        }});
+                } catch {
+                    res.send({success: false, message: "Error to send email"})
+                }
+                } else {
+                    res.send({success: false, message: "Email is error"});
+                    // throw new Error("Email is required");
+                }
+        } else{
+            res.send({success: false, message: "Email is not found"});
+        }
 
         }
         catch(error)
