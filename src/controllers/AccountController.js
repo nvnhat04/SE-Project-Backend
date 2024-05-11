@@ -12,18 +12,22 @@ class AccountController {
         try {
             const find = await User.findOne({email: newUser.email})
             const findUsername = await User.findOne({username: newUser.username});
-            if (!find && !findUsername) {
+            if (!find ) {
+                if(!findUsername){
                 // Hash the password before storing it
                 const hashedPassword = await bcrypt.hash(newUser.password, 10); // 10 is the saltRounds
                 newUser.password = hashedPassword;
                 const user = await User.create(newUser);
                 res.send({success: true, email: user.email, _id: user._id});
                 console.log("success");
+                }else{
+                    res.send({success: false, username: false, email:true, message: 'Username already exists'});
+                }
             } else {
-                res.send({message: 'Email already exists'});
+                res.send({success: false,username: true, email:false, message: 'Email already exists'});
             }
         } catch (error) {
-            responseHandler.error(res);
+            res.send({success: false, username: false, email:false, message: 'Internal Server Error'});
         }
     }
     
