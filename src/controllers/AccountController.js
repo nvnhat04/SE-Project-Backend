@@ -202,11 +202,13 @@ class AccountController {
             res.send({success: false, message: "error to remove account"});
         }
     }
+    
     async adminDeleteAccount(req, res){
-        const { username, email } = req.body;
+        const { username } = req.body;
         try {
-            const user = await User.findOne({user: username});
+            const user = await User.findOne({username: username});
             if(user){
+                await Review.deleteMany({username: user.username});
                 await User.deleteOne({_id: user._id});
                 res.send({success: true, message: "remove account success"});
             } else {
