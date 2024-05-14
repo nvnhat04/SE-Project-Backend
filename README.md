@@ -16,13 +16,13 @@ cd your-folder
 ```
 npm i
 ```
-
+4. Fill in the information in the .env file.
 # Usage
-4. To start the application, run:
+5. To start the application, run:
 ```
 npm start
 ```
 
-5. Open your web browser and navigate to `http://localhost:3001`.
+6. Open your web browser and navigate to `http://localhost:3001`.
 
 # Features
